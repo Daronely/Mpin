@@ -69,7 +69,7 @@
 
       if (!value && q.required) {
         ok = false;
-        errEl.textContent = 'This question is required.';
+        errEl.textContent = MPIN.t('part.q_required');
         errEl.hidden = false;
       }
       if (value) answers[q.id] = value;
@@ -80,7 +80,7 @@
   $('#answersForm').addEventListener('submit', (e) => {
     e.preventDefault();
     const answers = collectAnswers();
-    if (!answers) { MPIN.toast('Please complete the required questions.', 'err'); return; }
+    if (!answers) { MPIN.toast(MPIN.t('part.complete_required'), 'err'); return; }
     window.__mpinAnswers = answers;
     buildReview(answers);
     goTo(2);
@@ -136,12 +136,12 @@
 
   pickMap.on('click', async (e) => {
     if (!shareChk.checked) {
-      MPIN.toast('Check “Pin my approximate location” first, or continue without a pin.', 'err');
+      MPIN.toast(MPIN.t('part.check_first'), 'err');
       shareChk.focus();
       return;
     }
     setPoint(e.latlng.lat, e.latlng.wrap().lng);
-    locLabel.textContent = 'Looking up place…';
+    locLabel.textContent = MPIN.t('part.looking_up');
     reverseGeocode(e.latlng.lat, e.latlng.wrap().lng);
   });
 
@@ -161,8 +161,8 @@
   }
 
   $('#gpsBtn').addEventListener('click', () => {
-    if (!navigator.geolocation) { MPIN.toast('Geolocation is not supported by your browser.', 'err'); return; }
-    MPIN.toast('Requesting your location…');
+    if (!navigator.geolocation) { MPIN.toast(MPIN.t('part.gps_unsupported'), 'err'); return; }
+    MPIN.toast(MPIN.t('part.gps_request'));
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         shareChk.checked = true;
@@ -171,7 +171,7 @@
         pickMap.flyTo([pos.coords.latitude, pos.coords.longitude], 8, { duration: 1 });
         reverseGeocode(pos.coords.latitude, pos.coords.longitude);
       },
-      () => MPIN.toast('Location permission denied — pick a point manually instead.', 'err'),
+      () => MPIN.toast(MPIN.t('part.gps_denied'), 'err'),
       { timeout: 10000, maximumAge: 60000 }
     );
   });
@@ -211,11 +211,14 @@
 
   /* ---------- submit ---------- */
   $('#submitResponse').addEventListener('click', async () => {
+    // fire-and-forget fingerprint warm-up
     const btn = $('#submitResponse');
     btn.disabled = true;
-    btn.textContent = 'Submitting…';
+    btn.textContent = MPIN.t('part.submitting');
+    const fp = await MPIN.fingerprint();
     const payload = {
       answers: window.__mpinAnswers || {},
+      fp: fp,
       location: (picked && shareChk.checked)
         ? { lat: picked.lat, lng: picked.lng, city: picked.city || null, region: picked.region || null, country: picked.country || null }
         : null,
@@ -234,7 +237,7 @@
         });
       }
       btn.disabled = false;
-      btn.innerHTML = MPIN.esc('Submit response');
+      btn.textContent = MPIN.t('part.submit');
     }
   });
 })();

@@ -16,7 +16,7 @@
       e.preventDefault();
       const btn = loginForm.querySelector('button[type=submit]');
       const err = document.getElementById('loginError');
-      btn.disabled = true; btn.textContent = 'Logging in…';
+      btn.disabled = true; btn.textContent = MPIN.t('auth.logging_in');
       try {
         const res = await MPIN.api(base + '/api/auth/login', {
           method: 'POST',
@@ -24,7 +24,7 @@
         });
         location.href = res.redirect || (base + '/dashboard');
       } catch (ex) {
-        btn.disabled = false; btn.textContent = 'Log in';
+        btn.disabled = false; btn.textContent = MPIN.t('auth.login_btn');
         err.hidden = false; err.textContent = ex.message;
       }
     });
@@ -40,7 +40,7 @@
         err.hidden = false; err.textContent = 'Passwords do not match.';
         return;
       }
-      btn.disabled = true; btn.textContent = 'Creating account…';
+      btn.disabled = true; btn.textContent = MPIN.t('auth.creating');
       try {
         const res = await MPIN.api(base + '/api/auth/register', {
           method: 'POST',
@@ -55,7 +55,7 @@
         });
         location.href = res.redirect || (base + '/dashboard');
       } catch (ex) {
-        btn.disabled = false; btn.textContent = 'Create account';
+        btn.disabled = false; btn.textContent = MPIN.t('auth.register_btn');
         err.hidden = false; err.textContent = ex.message;
       }
     });

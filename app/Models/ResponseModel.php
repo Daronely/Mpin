@@ -16,7 +16,7 @@ final class ResponseModel
      * @param array|null   $location {lat,lng,country?,region?,city?} chosen by the participant
      * @return array{ok:bool,error?:string,errors?:array,suppressed?:bool}
      */
-    public static function submit(?array $user, array $poll, array $answers, ?array $location): array
+    public static function submit(?array $user, array $poll, array $answers, ?array $location, ?string $fingerprint = null): array
     {
         $pollId = (int)$poll['id'];
         $questions = Poll::questions($pollId);
@@ -31,19 +31,38 @@ final class ResponseModel
             return ['ok' => false, 'error' => 'You need an account to participate in this poll.'];
         }
 
-        /* ---- de-duplication ---- */
+        /* ---- multi-layer de-duplication ----
+           Layer 1: account            (user_id)
+           Layer 2: guest cookie       (guest_hash)
+           Layer 3: salted IP hash     (ip_hash)
+           Layer 4: browser fingerprint hash (fp_hash)
+           Any match on the same poll blocks a repeat answer. */
+        $fpHash = null;
+        if ($fingerprint !== null && preg_match('/^[a-f0-9]{16,128}$/', $fingerprint)) {
+            $fpHash = hash_hmac('sha256', substr($fingerprint, 0, 128), APP_KEY);
+        }
         if (!(int)$poll['allow_multiple']) {
+            $conds = [];
+            $params = [];
             if ($user) {
-                $dup = Database::value(
-                    'SELECT id FROM responses WHERE poll_id = ? AND user_id = ?', [$pollId, $user['id']]);
+                $conds[] = 'user_id = ?';
+                $params[] = $user['id'];
             } else {
                 $gh = self::guestHash();
-                $dup = $gh
-                    ? Database::value(
-                        'SELECT id FROM responses WHERE poll_id = ? AND guest_hash = ?', [$pollId, $gh])
-                    : Database::value(
-                        'SELECT id FROM responses WHERE poll_id = ? AND ip_hash = ?', [$pollId, ip_hash()]);
+                if ($gh) {
+                    $conds[] = 'guest_hash = ?';
+                    $params[] = $gh;
+                }
             }
+            $conds[] = 'ip_hash = ?';
+            $params[] = ip_hash();
+            if ($fpHash) {
+                $conds[] = 'fp_hash = ?';
+                $params[] = $fpHash;
+            }
+            $dup = Database::value(
+                'SELECT id FROM responses WHERE poll_id = ? AND (' . implode(' OR ', $conds) . ')',
+                array_merge([$pollId], $params));
             if ($dup) {
                 return ['ok' => false, 'error' => 'You have already responded to this poll.'];
             }
@@ -174,12 +193,13 @@ final class ResponseModel
         /* ---- persist ---- */
         $guestHash = $user ? null : self::guestHash(true);
         try {
-            Database::tx(static function () use ($user, $pollId, $guestHash, $rows, $loc, &$responseId): void {
+            Database::tx(static function () use ($user, $pollId, $guestHash, $rows, $loc, $fpHash, &$responseId): void {
                 $responseId = Database::insert('responses', [
                     'poll_id'    => $pollId,
                     'user_id'    => $user['id'] ?? null,
                     'guest_hash' => $guestHash,
                     'ip_hash'    => ip_hash(),
+                    'fp_hash'    => $fpHash,
                     'country'    => $loc['country'] ?? null,
                     'created_at' => utcnow(),
                 ]);

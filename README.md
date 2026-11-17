@@ -21,6 +21,8 @@ approximate pin, and the results grow into clusters, heatmaps and country rankin
 
 **[Live demo →](https://mpin.metora.ir/)** · **[Explore polls →](https://mpin.metora.ir/explore)** · **[The global map →](https://mpin.metora.ir/map)**
 
+**English** · [فارسی (README.fa.md)](README.fa.md) · **فارسی UI: switch languages from the site header (EN / فا)**
+
 </div>
 
 ---
@@ -115,6 +117,14 @@ geographic dataset, and every answer becomes a point of light on the map.**
 - User management (suspend, promote, delete)
 - Poll moderation (feature ★, verify ✔, close, delete)
 - Category manager, report queue, site settings
+- **Audit log** — every moderation & management action is recorded
+
+### 🌐 Languages
+- **English** (LTR) and **فارسی Persian** (full RTL) with a header switcher
+- Persian UI ships with the Vazirmatn font, Jalali dates (۲۶ آبان ۱۴۰۵) and Persian digits
+- Anti-duplicate participation uses four independent layers: account, guest token,
+  salted IP hash and a salted browser-fingerprint hash
+- **My Data** page lets anyone — registered *or* guest — review and delete their responses
 
 ---
 

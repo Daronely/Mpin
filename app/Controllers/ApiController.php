@@ -103,7 +103,8 @@ final class ApiController
         }
 
         $user = Auth::current();
-        $result = ResponseModel::submit($user, $poll, $answers, $location);
+        $fp = is_string($body['fp'] ?? null) ? $body['fp'] : null;
+        $result = ResponseModel::submit($user, $poll, $answers, $location, $fp);
         if (!$result['ok']) {
             json_err($result['error'], $result['errors'] ?? []);
         }

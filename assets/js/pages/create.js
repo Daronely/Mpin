@@ -8,12 +8,12 @@
   const builder = document.getElementById('questionBuilder');
   const qCount = document.getElementById('qCount');
   const TYPES = {
-    yesno: 'Yes / No',
-    single: 'Single choice',
-    multi: 'Multiple choice',
-    text: 'Short text',
-    number: 'Number',
-    rating: 'Rating (1-5)',
+    yesno: () => MPIN.t('qt.yesno'),
+    single: () => MPIN.t('qt.single'),
+    multi: () => MPIN.t('qt.multi'),
+    text: () => MPIN.t('qt.text'),
+    number: () => MPIN.t('qt.number'),
+    rating: () => MPIN.t('qt.rating'),
   };
 
   const uid = () => 'q' + Math.random().toString(36).slice(2, 8);
@@ -27,9 +27,9 @@
     wrap.innerHTML = `
       <div class="qb-head">
         <select class="field select qb-type" aria-label="Question type">
-          ${Object.entries(TYPES).map(([v, l]) => `<option value="${v}" ${q.type === v ? 'selected' : ''}>${l}</option>`).join('')}
+          ${Object.entries(TYPES).map(([v, l]) => `<option value="${v}" ${q.type === v ? 'selected' : ''}>${l()}</option>`).join('')}
         </select>
-        <input class="field qb-text" type="text" maxlength="300" placeholder="Ask something…" value="${MPIN.esc(q.text)}">
+        <input class="field qb-text" type="text" maxlength="300" placeholder="${MPIN.t('create.ask_something')}" value="${MPIN.esc(q.text)}">
         <button class="icon-btn danger qb-remove" type="button" title="Remove question">${MPIN.$ ? '' : ''}</button>
       </div>
       <div class="qb-extra"></div>
@@ -55,7 +55,7 @@
       const opts = (q.options && q.options.length ? q.options : ['', '']);
       extra.innerHTML = `<div class="qb-opts">` +
         opts.map((o) => optRow(o)).join('') +
-        `</div><button type="button" class="btn btn-ghost btn-sm qb-add-opt">+ Add option</button>`;
+        `</div><button type="button" class="btn btn-ghost btn-sm qb-add-opt">${MPIN.t('create.add_option')}</button>`;
     } else if (type === 'number') {
       const cfgN = q.config || {};
       extra.innerHTML = `<div class="qb-num-row">
@@ -69,7 +69,7 @@
   }
 
   function optRow(value) {
-    return `<div class="qb-opt"><input class="field qb-opt-input" type="text" maxlength="150" placeholder="Option text…" value="${MPIN.esc(value || '')}">
+    return `<div class="qb-opt"><input class="field qb-opt-input" type="text" maxlength="150" placeholder="${MPIN.t('create.option_ph')}" value="${MPIN.esc(value || '')}">
       <button type="button" class="icon-btn danger qb-opt-remove" title="Remove option">✕</button></div>`;
   }
 
@@ -87,17 +87,17 @@
     const item = e.target.closest('.qb-item');
     if (!item) return;
     if (e.target.closest('.qb-remove')) {
-      if ($$('.qb-item', builder).length <= 1) { MPIN.toast('A poll needs at least one question.', 'err'); return; }
+      if ($$('.qb-item', builder).length <= 1) { MPIN.toast(MPIN.t('create.min_questions'), 'err'); return; }
       item.remove(); updateCount();
     }
     if (e.target.closest('.qb-add-opt')) {
       const opts = item.querySelector('.qb-opts');
-      if ($$('.qb-opt', opts).length >= 10) { MPIN.toast('Max 10 options.', 'err'); return; }
+      if ($$('.qb-opt', opts).length >= 10) { MPIN.toast(MPIN.t('create.max_options'), 'err'); return; }
       opts.insertAdjacentHTML('beforeend', optRow(''));
     }
     if (e.target.closest('.qb-opt-remove')) {
       const opts = e.target.closest('.qb-opts');
-      if ($$('.qb-opt', opts).length <= 2) { MPIN.toast('A choice question needs at least 2 options.', 'err'); return; }
+      if ($$('.qb-opt', opts).length <= 2) { MPIN.toast(MPIN.t('create.min_options'), 'err'); return; }
       e.target.closest('.qb-opt').remove();
     }
     if (e.target.closest('.qb-up')) {
@@ -111,7 +111,7 @@
   });
 
   document.getElementById('addQuestion').addEventListener('click', () => {
-    if ($$('.qb-item', builder).length >= 10) { MPIN.toast('Max 10 questions.', 'err'); return; }
+    if ($$('.qb-item', builder).length >= 10) { MPIN.toast(MPIN.t('create.max_questions'), 'err'); return; }
     questionTemplate();
     builder.lastElementChild.scrollIntoView({ behavior: 'smooth', block: 'center' });
   });
@@ -138,8 +138,8 @@
   function previewCover() {
     const f = coverInput.files && coverInput.files[0];
     if (!f) return;
-    if (!/^image\/(jpeg|png|webp)$/.test(f.type)) { MPIN.toast('Cover must be JPG, PNG or WebP.', 'err'); coverInput.value = ''; return; }
-    if (f.size > 4 * 1024 * 1024) { MPIN.toast('Cover must be under 4 MB.', 'err'); coverInput.value = ''; return; }
+    if (!/^image\/(jpeg|png|webp)$/.test(f.type)) { MPIN.toast(MPIN.t('create.cover_bad_type'), 'err'); coverInput.value = ''; return; }
+    if (f.size > 4 * 1024 * 1024) { MPIN.toast(MPIN.t('create.cover_too_big'), 'err'); coverInput.value = ''; return; }
     const reader = new FileReader();
     reader.onload = () => {
       coverNew.src = reader.result;
@@ -188,7 +188,7 @@
 
     if (!form.title.value.trim() || !form.category_id.value || !valid) {
       errBox.hidden = false;
-      errBox.textContent = 'Please fill in the title, category, and complete all questions (each needs text; choice questions need ≥ 2 options).';
+      errBox.textContent = MPIN.t('create.form_error');
       return;
     }
     errBox.hidden = true;
@@ -201,15 +201,15 @@
     if (!fd.get('cover')) fd.delete('cover');
 
     btn.disabled = true;
-    btn.textContent = cfg.isEdit ? 'Saving…' : 'Publishing…';
+    btn.textContent = cfg.isEdit ? MPIN.t('create.saving') : MPIN.t('create.publishing');
     try {
       const path = cfg.isEdit ? `${MPIN.base || ''}/poll/${encodeURIComponent(cfg.editSlug)}/edit` : `${MPIN.base || ''}/create`;
       const res = await MPIN.api(path, { method: 'POST', form: fd });
-      MPIN.toast(cfg.isEdit ? 'Poll updated.' : 'Poll published!');
+      MPIN.toast(MPIN.t(cfg.isEdit ? 'toast.poll_updated' : 'toast.poll_published'));
       setTimeout(() => { location.href = res.redirect; }, 600);
     } catch (err) {
       btn.disabled = false;
-      btn.textContent = cfg.isEdit ? 'Save changes' : 'Publish poll';
+      btn.textContent = MPIN.t(cfg.isEdit ? 'create.save_changes' : 'create.publish');
       errBox.hidden = false;
       errBox.textContent = err.message;
       if (err.data && err.data.errors) {
@@ -223,7 +223,7 @@
   });
 
   if (cfg.hasResponses) {
-    MPIN.toast('This poll already has responses — questions are locked, but you can still edit everything else.', 'ok', 6000);
+    MPIN.toast(MPIN.t('create.locked_note'), 'ok', 6000);
     $$('.qb-item', builder).forEach((item) => {
       item.querySelectorAll('.qb-remove, .qb-up, .qb-down, .qb-add-opt, .qb-opt-remove, input, select').forEach((el) => { el.disabled = true; });
     });

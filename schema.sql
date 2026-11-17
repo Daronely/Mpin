@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS users (
   bio           VARCHAR(300)     NOT NULL DEFAULT '',
   avatar_color  VARCHAR(7)       NOT NULL DEFAULT '',
   role          ENUM('user','admin') NOT NULL DEFAULT 'user',
+  locale        VARCHAR(5)       NOT NULL DEFAULT 'en',
   is_active     TINYINT(1)       NOT NULL DEFAULT 1,
   remember_hash CHAR(64)         DEFAULT NULL,
   last_login    DATETIME         DEFAULT NULL,
@@ -109,6 +110,7 @@ CREATE TABLE IF NOT EXISTS poll_options (
 -- responses
 --   user_id NULL  -> anonymous/guest participation
 --   guest_hash    -> cookie fingerprint for de-duplication
+--   fp_hash       -> salted browser-fingerprint hash (layer 4 anti-duplicate)
 --   ip_hash       -> salted hash, moderation only (never exposed)
 -- -------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS responses (
@@ -116,6 +118,7 @@ CREATE TABLE IF NOT EXISTS responses (
   poll_id    BIGINT UNSIGNED NOT NULL,
   user_id    INT UNSIGNED    NULL,
   guest_hash CHAR(64)        NULL,
+  fp_hash    CHAR(64)        NULL,
   ip_hash    CHAR(64)        NOT NULL,
   country    VARCHAR(80)     NULL,
   created_at DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -224,6 +227,23 @@ CREATE TABLE IF NOT EXISTS rate_limits (
   window_start INT UNSIGNED     NOT NULL,
   hits         INT UNSIGNED     NOT NULL DEFAULT 0,
   PRIMARY KEY (action, ip_hash, window_start)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -------------------------------------------------------------
+-- audit_logs  (every moderation / management action)
+-- -------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS audit_logs (
+  id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  user_id     INT UNSIGNED    NULL,
+  actor       VARCHAR(30)     NOT NULL DEFAULT 'system',
+  action      VARCHAR(60)     NOT NULL,
+  target_type VARCHAR(20)     NOT NULL,
+  target_id   VARCHAR(30)     NOT NULL DEFAULT '',
+  details     VARCHAR(300)    NOT NULL DEFAULT '',
+  created_at  DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  KEY idx_audit_created (created_at),
+  KEY idx_audit_user (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- -------------------------------------------------------------

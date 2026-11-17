@@ -14,8 +14,8 @@ $cover = upload_url($p['cover'] ?? null);
       <?php else: ?>
         <div class="poll-card-pattern"><?= mpin_icon('pin', 44) ?></div>
       <?php endif; ?>
-      <span class="chip chip-cat"><?= mpin_icon($p['category_icon'] ?? 'tag', 13) ?> <?= e($p['category_name'] ?? ($p['category_slug'] ?? '')) ?></span>
-      <?php if (!empty($p['is_verified'])): ?><span class="chip chip-verified" title="Verified poll"><?= mpin_icon('check', 12) ?> Verified</span><?php endif; ?>
+      <span class="chip chip-cat"><?= mpin_icon($p['category_icon'] ?? 'tag', 13) ?> <?= e(__('cat.' . ($p['category_slug'] ?? 'other'))) ?></span>
+      <?php if (!empty($p['is_verified'])): ?><span class="chip chip-verified" title="<?= e(__('common.verified')) ?>"><?= mpin_icon('check', 12) ?> <?= e(__('common.verified')) ?></span><?php endif; ?>
     </div>
     <div class="poll-card-body">
       <h3 class="poll-card-title"><?= e($p['title']) ?></h3>
@@ -25,11 +25,11 @@ $cover = upload_url($p['cover'] ?? null);
           <?= e(initials($p['display_name'] ?? '?')) ?>
           <span>@<?= e($p['username'] ?? '') ?></span>
         </span>
-        <span class="meta-stat" title="Participants"><?= mpin_icon('users', 14) ?> <?= e(num_fmt((int)($p['response_count'] ?? 0))) ?></span>
-        <span class="meta-stat" title="Countries"><?= mpin_icon('globe', 14) ?> <?= e(num_fmt((int)($p['countries_count'] ?? 0))) ?></span>
+        <span class="meta-stat" title="<?= e(__('common.participants')) ?>"><?= mpin_icon('users', 14) ?> <?= e(local_num(num_fmt((int)($p['response_count'] ?? 0)))) ?></span>
+        <span class="meta-stat" title="<?= e(__('common.countries')) ?>"><?= mpin_icon('globe', 14) ?> <?= e(local_num(num_fmt((int)($p['countries_count'] ?? 0)))) ?></span>
       </div>
       <?php if (($p['responses_7d'] ?? 0) > 2): ?>
-        <span class="trend-badge"><?= mpin_icon('fire', 13) ?> <?= (int)$p['responses_7d'] ?> this week</span>
+        <span class="trend-badge"><?= mpin_icon('fire', 13) ?> <?= e(local_num((int)$p['responses_7d'])) ?> <?= e(__('common.this_week')) ?></span>
       <?php endif; ?>
     </div>
   </a>

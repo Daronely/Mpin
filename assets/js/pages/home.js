@@ -35,8 +35,8 @@
       }),
     });
     marker.bindPopup(
-      `<p class="map-popup-title">${MPIN.esc(p.city ? p.city + ', ' + (p.country || '') : p.country || 'Somewhere on Earth')}</p>` +
-      `<p class="map-popup-sub">${MPIN.fmt(p.count)} responses</p>`
+      `<p class="map-popup-title">${MPIN.esc(p.city ? p.city + ', ' + (p.country || '') : p.country || MPIN.t('map.somewhere'))}</p>` +
+      `<p class="map-popup-sub">${MPIN.fmt(p.count)} ${MPIN.t('common.responses')}</p>`
     );
     cluster.addLayer(marker);
   });

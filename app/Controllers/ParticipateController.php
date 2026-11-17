@@ -15,9 +15,9 @@ final class ParticipateController
         if (!$poll) {
             http_response_code(404);
             View::render('pages/error', [
-                'title' => 'Not found — Mpin', 'code' => 404,
-                'heading' => '404 — Poll not found',
-                'message' => 'This poll does not exist or was deleted.',
+                'title' => '404 — Mpin', 'code' => 404,
+                'heading' => __('error.404_heading'),
+                'message' => __('error.404_poll'),
             ]);
             exit;
         }

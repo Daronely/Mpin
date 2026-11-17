@@ -4,25 +4,26 @@
   <div class="container footer-grid">
     <div class="footer-brand">
       <a class="brand" href="<?= e(url('/')) ?>"><?= mpin_logo(28, 'ft') ?><span class="brand-name">Mpin</span></a>
-      <p class="tagline">People Answer. The World Appears.</p>
-      <p class="footer-note">An interactive community mapping &amp; polling platform. Built with PHP, MySQL, Leaflet &amp; Chart.js.</p>
+      <p class="tagline"><?= e(__('tagline')) ?></p>
+      <p class="footer-note"><?= e(__('home.powered_by')) ?></p>
     </div>
-    <nav class="footer-col" aria-label="Product">
-      <h4>Product</h4>
-      <a href="<?= e(url('/explore')) ?>">Explore polls</a>
-      <a href="<?= e(url('/map')) ?>">Global map</a>
-      <a href="<?= e(url('/create')) ?>">Create a poll</a>
-      <a href="<?= e(url('/about')) ?>">About Mpin</a>
+    <nav class="footer-col" aria-label="<?= e(__('footer.product')) ?>">
+      <h4><?= e(__('footer.product')) ?></h4>
+      <a href="<?= e(url('/explore')) ?>"><?= e(__('footer.explore')) ?></a>
+      <a href="<?= e(url('/map')) ?>"><?= e(__('footer.global_map')) ?></a>
+      <a href="<?= e(url('/create')) ?>"><?= e(__('footer.create')) ?></a>
+      <a href="<?= e(url('/about')) ?>"><?= e(__('footer.about')) ?></a>
     </nav>
-    <nav class="footer-col" aria-label="Legal">
-      <h4>Legal</h4>
-      <a href="<?= e(url('/privacy-policy')) ?>">Privacy policy</a>
-      <a href="<?= e(url('/terms')) ?>">Terms of service</a>
+    <nav class="footer-col" aria-label="<?= e(__('footer.legal')) ?>">
+      <h4><?= e(__('footer.legal')) ?></h4>
+      <a href="<?= e(url('/privacy-policy')) ?>"><?= e(__('footer.privacy')) ?></a>
+      <a href="<?= e(url('/terms')) ?>"><?= e(__('footer.terms')) ?></a>
+      <a href="<?= e(url('/my-data')) ?>"><?= e(__('footer.my_data')) ?></a>
     </nav>
     <div class="footer-col">
-      <h4>Powered by</h4>
+      <h4><?= e(__('footer.powered_by')) ?></h4>
       <span class="footer-tech">OpenStreetMap · Leaflet · Chart.js</span>
-      <p class="footer-note">&copy; <?= date('Y') ?> Mpin — Map data © OpenStreetMap contributors.</p>
+      <p class="footer-note">&copy; <?= local_num(date('Y')) ?> Mpin — <?= e(__('footer.rights')) ?></p>
     </div>
   </div>
 </footer>

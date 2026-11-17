@@ -112,4 +112,5 @@ if (PHP_SAPI !== 'cli' && $config !== null) {
     if (empty($_SESSION['csrf'])) {
         $_SESSION['csrf'] = bin2hex(random_bytes(32));
     }
+    \App\Core\I18n::init();
 }

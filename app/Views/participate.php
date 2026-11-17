@@ -5,19 +5,19 @@ $vendor = ['leaflet'];
 ?>
 <section class="container participate">
   <div class="participate-head">
-    <a class="crumb" href="<?= e(url('/poll/' . $poll['slug'])) ?>"><?= mpin_icon('arrow-right', 14) ?> Back to poll</a>
+    <a class="crumb" href="<?= e(url('/poll/' . $poll['slug'])) ?>"><?= mpin_icon('arrow-right', 14) ?> <?= e(__('part.back_to_poll')) ?></a>
     <h1><?= e($poll['title']) ?></h1>
     <p class="muted">
-      <?= count($questions) ?> question<?= count($questions) === 1 ? '' : 's' ?> ·
-      <?= $poll['allow_anonymous'] || $loggedIn ? 'then drop a pin on the map' : 'log in required' ?>
+      <?= e(__('part.questions_count', ['n' => local_num(count($questions))])) ?> ·
+      <?= e($poll['allow_anonymous'] || $loggedIn ? __('part.then_pin') : __('part.login_required')) ?>
     </p>
   </div>
 
   <div class="wizard">
     <ol class="wizard-steps" id="wizardSteps">
-      <li class="step active" data-step="1"><span class="step-dot">1</span> Answer</li>
-      <li class="step" data-step="2"><span class="step-dot">2</span> Location</li>
-      <li class="step" data-step="3"><span class="step-dot">3</span> Review</li>
+      <li class="step active" data-step="1"><span class="step-dot"><?= e(local_num(1)) ?></span> <?= e(__('part.step_answer')) ?></li>
+      <li class="step" data-step="2"><span class="step-dot"><?= e(local_num(2)) ?></span> <?= e(__('part.step_location')) ?></li>
+      <li class="step" data-step="3"><span class="step-dot"><?= e(local_num(3)) ?></span> <?= e(__('part.step_review')) ?></li>
     </ol>
 
     <div class="wizard-panels">
@@ -27,7 +27,7 @@ $vendor = ['leaflet'];
           <?php foreach ($questions as $i => $q): ?>
             <fieldset class="q-card" data-qid="<?= (int)$q['id'] ?>" data-type="<?= e($q['type']) ?>" data-required="<?= $q['is_required'] ? '1' : '0' ?>">
               <legend>
-                <span class="q-num"><?= $i + 1 ?></span>
+                <span class="q-num"><?= e(local_num($i + 1)) ?></span>
                 <?= e($q['question_text']) ?>
                 <?php if ($q['is_required']): ?><span class="req">*</span><?php endif; ?>
               </legend>
@@ -57,18 +57,18 @@ $vendor = ['leaflet'];
 
               <?php elseif ($q['type'] === 'text'): ?>
                 <textarea class="field" name="q<?= (int)$q['id'] ?>" rows="3" maxlength="500"
-                  placeholder="Type your answer…<?= $q['is_required'] ? ' (required)' : ' (optional)' ?>"></textarea>
+                  placeholder="<?= e(__('part.type_answer')) ?> (<?= e($q['is_required'] ? __('common.required') : __('common.optional')) ?>)"></textarea>
 
               <?php elseif ($q['type'] === 'number'): $cfg = $q['config'] ?: []; ?>
                 <input class="field" type="number" step="any" name="q<?= (int)$q['id'] ?>"
                   <?= isset($cfg['min']) ? 'min="' . e($cfg['min']) . '"' : '' ?>
                   <?= isset($cfg['max']) ? 'max="' . e($cfg['max']) . '"' : '' ?>
-                  placeholder="<?= $q['is_required'] ? 'Enter a number' : 'Optional number' ?>">
+                  placeholder="<?= e($q['is_required'] ? __('part.enter_number') : __('part.optional_number')) ?>">
 
               <?php elseif ($q['type'] === 'rating'): ?>
-                <div class="rating" role="radiogroup" aria-label="Rating">
+                <div class="rating" role="radiogroup" aria-label="<?= e(__('qt.rating')) ?>">
                   <?php for ($r = 1; $r <= 5; $r++): ?>
-                    <label class="star-btn" title="<?= $r ?> star<?= $r > 1 ? 's' : '' ?>">
+                    <label class="star-btn" title="<?= e(__('part.star', ['n' => local_num($r)])) ?>">
                       <input type="radio" name="q<?= (int)$q['id'] ?>" value="<?= $r ?>" <?= $q['is_required'] ? 'required' : '' ?>>
                       <?= mpin_icon('star', 26) ?>
                     </label>
@@ -83,7 +83,7 @@ $vendor = ['leaflet'];
 
           <div class="wizard-nav">
             <span></span>
-            <button class="btn btn-primary btn-lg" type="submit" id="toStep2">Continue <?= mpin_icon('arrow-right', 16) ?></button>
+            <button class="btn btn-primary btn-lg" type="submit" id="toStep2"><?= e(__('common.continue')) ?> <?= mpin_icon('arrow-right', 16) ?></button>
           </div>
         </form>
       </div>
@@ -91,34 +91,33 @@ $vendor = ['leaflet'];
       <!-- STEP 2: location -->
       <div class="wizard-panel" data-panel="2">
         <div class="loc-intro">
-          <h2><?= mpin_icon('pin', 20) ?> Where are you answering from?</h2>
-          <p class="muted">Drop a pin on the map to add yourself. Only an <strong>approximate</strong> position is stored —
-             it is snapped to a ~5&nbsp;km privacy grid before saving, and areas with fewer than a few participants are hidden.</p>
+          <h2><?= mpin_icon('pin', 20) ?> <?= e(__('part.where_from')) ?></h2>
+          <p class="muted"><?= e(__('part.privacy_explain')) ?></p>
           <label class="check-note">
-            <input type="checkbox" id="shareLocation"> Pin my approximate location on the public map
+            <input type="checkbox" id="shareLocation"> <?= e(__('part.share_location_check')) ?>
           </label>
         </div>
         <div class="map-wrap loc-map">
           <div id="pickMap" class="map-canvas"></div>
-          <button class="btn btn-ghost loc-gps" id="gpsBtn" type="button"><?= mpin_icon('globe', 16) ?> Use my location</button>
+          <button class="btn btn-ghost loc-gps" id="gpsBtn" type="button"><?= mpin_icon('globe', 16) ?> <?= e(__('part.use_my_location')) ?></button>
           <div class="loc-confirm" id="locConfirm" hidden>
-            <?= mpin_icon('pin', 16) ?> <span id="locLabel">Location selected</span>
-            <button class="btn btn-sm btn-ghost" id="locClear" type="button"><?= mpin_icon('x', 13) ?> Clear</button>
+            <?= mpin_icon('pin', 16) ?> <span id="locLabel"><?= e(__('part.location_selected')) ?></span>
+            <button class="btn btn-sm btn-ghost" id="locClear" type="button"><?= mpin_icon('x', 13) ?> <?= e(__('common.clear')) ?></button>
           </div>
         </div>
         <div class="wizard-nav">
-          <button class="btn btn-ghost" data-back="1">Back</button>
-          <button class="btn btn-primary btn-lg" id="toStep3" type="button" disabled>Continue <?= mpin_icon('arrow-right', 16) ?></button>
+          <button class="btn btn-ghost" data-back="1"><?= e(__('common.back')) ?></button>
+          <button class="btn btn-primary btn-lg" id="toStep3" type="button" disabled><?= e(__('common.continue')) ?> <?= mpin_icon('arrow-right', 16) ?></button>
         </div>
       </div>
 
       <!-- STEP 3: review -->
       <div class="wizard-panel" data-panel="3">
-        <h2><?= mpin_icon('eye', 20) ?> Review your answers</h2>
+        <h2><?= mpin_icon('eye', 20) ?> <?= e(__('part.review_title')) ?></h2>
         <div id="reviewList" class="review-list"></div>
         <div class="wizard-nav">
-          <button class="btn btn-ghost" data-back="2">Back</button>
-          <button class="btn btn-primary btn-lg btn-lg-accent" id="submitResponse" type="button"><?= mpin_icon('send', 16) ?> Submit response</button>
+          <button class="btn btn-ghost" data-back="2"><?= e(__('common.back')) ?></button>
+          <button class="btn btn-primary btn-lg btn-lg-accent" id="submitResponse" type="button"><?= mpin_icon('send', 16) ?> <?= e(__('part.submit')) ?></button>
         </div>
       </div>
 
@@ -126,12 +125,13 @@ $vendor = ['leaflet'];
       <div class="wizard-panel" data-panel="4">
         <div class="done-state">
           <div class="done-ico"><?= mpin_logo(72, 'done') ?></div>
-          <h2>Thank you!</h2>
-          <p class="muted">Your response is on the map. Results update live as more people answer.</p>
+          <h2><?= e(__('part.thank_you')) ?></h2>
+          <p class="muted"><?= e(__('part.thank_you_sub')) ?></p>
           <div class="hero-actions center">
-            <a class="btn btn-primary btn-lg" href="<?= e(url('/poll/' . $poll['slug'])) ?>"><?= mpin_icon('map', 16) ?> See the map</a>
-            <a class="btn btn-ghost btn-lg" href="<?= e(url('/explore')) ?>">Explore more polls</a>
+            <a class="btn btn-primary btn-lg" href="<?= e(url('/poll/' . $poll['slug'])) ?>"><?= mpin_icon('map', 16) ?> <?= e(__('part.see_map')) ?></a>
+            <a class="btn btn-ghost btn-lg" href="<?= e(url('/explore')) ?>"><?= e(__('part.explore_more')) ?></a>
           </div>
+          <p class="mini-note"><a href="<?= e(url('/my-data')) ?>"><?= mpin_icon('shield', 13) ?> <?= e(__('part.manage_data')) ?></a></p>
         </div>
       </div>
     </div>

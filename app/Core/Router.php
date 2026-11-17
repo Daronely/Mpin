@@ -85,10 +85,10 @@ final class Router
         } else {
             http_response_code($foundPath ? 405 : 404);
             View::render('pages/error', [
-                'title' => 'Page not found',
+                'title' => '404 — Mpin',
                 'code'  => $foundPath ? 405 : 404,
-                'heading' => $foundPath ? 'Method not allowed' : '404 — Lost on the map',
-                'message' => 'The page you are looking for does not exist or has been moved.',
+                'heading' => $foundPath ? '405 — Method not allowed' : __('error.404_heading'),
+                'message' => __('error.404_message'),
             ]);
         }
     }

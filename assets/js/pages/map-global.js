@@ -36,7 +36,7 @@
       clusterGroup.clearLayers();
       if (heatLayer) { map.removeLayer(heatLayer); heatLayer = null; }
       if (!points.length) {
-        $('#mapMeta').textContent = 'No map data yet — answer a poll to appear here!';
+        $('#mapMeta').textContent = MPIN.t('gmap.no_data');
         return;
       }
       const maxC = Math.max(...points.map((p) => p.count), 1);
@@ -44,8 +44,8 @@
       points.forEach((p) => {
         const marker = L.marker([p.lat, p.lng], { icon: pinIcon(p.count) });
         marker.bindPopup(
-          `<p class="map-popup-title">${MPIN.esc(p.city ? p.city + ', ' + (p.country || '') : p.country || 'Somewhere on Earth')}</p>` +
-          `<p class="map-popup-sub">${MPIN.fmt(p.count)} responses from ${p.polls} poll${p.polls === 1 ? '' : 's'} (approx.)</p>`
+          `<p class="map-popup-title">${MPIN.esc(p.city ? p.city + ', ' + (p.country || '') : p.country || MPIN.t('map.somewhere'))}</p>` +
+          `<p class="map-popup-sub">${MPIN.t('map.responses_from', { n: MPIN.fmt(p.count), p: MPIN.fmt(p.polls) })}</p>`
         );
         clusterGroup.addLayer(marker);
         heatData.push([p.lat, p.lng, 0.25 + 0.75 * (p.count / maxC)]);
@@ -53,9 +53,9 @@
       heatLayer = L.heatLayer(heatData, { radius: 26, blur: 20, maxZoom: 8,
         gradient: { 0.2: '#3b82f6', 0.5: '#22d3ee', 0.8: '#fbbf24', 1: '#f87171' } });
       applyMode();
-      $('#mapMeta').textContent = `${points.length} active areas · updated ${new Date().toLocaleTimeString()}`;
+      $('#mapMeta').textContent = MPIN.t('gmap.updated', { n: MPIN.fmt(points.length), time: MPIN.locale === 'fa' ? new Date().toLocaleTimeString('fa-IR') : new Date().toLocaleTimeString() });
     } catch (e) {
-      $('#mapMeta').textContent = 'Could not load map data.';
+      $('#mapMeta').textContent = MPIN.t('poll.map_load_fail');
     }
   }
 

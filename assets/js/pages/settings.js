@@ -15,7 +15,7 @@
           body: { display_name: profileForm.display_name.value, bio: profileForm.bio.value },
         });
         err.hidden = true;
-        MPIN.toast('Profile saved.');
+        MPIN.toast(MPIN.t('set.profile_saved'));
         setTimeout(() => location.reload(), 700);
       } catch (ex) { err.hidden = false; err.textContent = ex.message; }
     });
@@ -37,7 +37,7 @@
         });
         err.hidden = true;
         passwordForm.reset();
-        MPIN.toast('Password changed. Please log in again on other devices.');
+        MPIN.toast(MPIN.t('set.pass_changed'));
       } catch (ex) { err.hidden = false; err.textContent = ex.message; }
     });
   }
@@ -56,7 +56,7 @@
       btn.disabled = true;
       try {
         const res = await MPIN.api(base + '/settings/privacy', { method: 'POST', body: { confirm: 'DELETE' } });
-        MPIN.toast(res.message || 'Your responses were deleted.');
+        MPIN.toast(res.message || MPIN.t('set.wipe_done'));
         chk.checked = false; confirmInput.value = ''; confirmInput.disabled = true; btn.disabled = true;
       } catch (ex) {
         MPIN.toast(ex.message, 'err');

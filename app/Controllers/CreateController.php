@@ -53,9 +53,9 @@ final class CreateController
         if ((int)$poll['user_id'] !== (int)$user['id'] && $user['role'] !== 'admin') {
             http_response_code(403);
             View::render('pages/error', [
-                'title' => 'Forbidden — Mpin', 'code' => 403,
-                'heading' => '403 — Not your poll',
-                'message' => 'Only the creator of this poll can edit it.',
+                'title' => '403 — Mpin', 'code' => 403,
+                'heading' => __('error.403_heading'),
+                'message' => __('error.403_not_yours'),
             ]);
             exit;
         }

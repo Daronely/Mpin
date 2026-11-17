@@ -41,7 +41,7 @@
     if (heatLayer) { map.removeLayer(heatLayer); heatLayer = null; }
 
     if (!points.length) {
-      $('#mapMeta').textContent = 'No map points yet — be among the first to answer!';
+      $('#mapMeta').textContent = MPIN.t('poll.no_points');
       return;
     }
     const heatData = [];
@@ -49,8 +49,8 @@
     points.forEach((p) => {
       const marker = L.marker([p.lat, p.lng], { icon: pinIcon(p.count) });
       marker.bindPopup(
-        `<p class="map-popup-title">${MPIN.esc(p.city ? p.city + ', ' + (p.country || '') : p.country || 'Somewhere on Earth')}</p>` +
-        `<p class="map-popup-sub">${MPIN.fmt(p.count)} participant${p.count === 1 ? '' : 's'} pin${p.count === 1 ? '' : 's'} here (approx.)</p>`
+        `<p class="map-popup-title">${MPIN.esc(p.city ? p.city + ', ' + (p.country || '') : p.country || MPIN.t('map.somewhere'))}</p>` +
+        `<p class="map-popup-sub">${MPIN.t('poll.approx_note', { n: MPIN.fmt(p.count) })}</p>`
       );
       clusterGroup.addLayer(marker);
       heatData.push([p.lat, p.lng, 0.25 + 0.75 * (p.count / maxC)]);
@@ -64,8 +64,8 @@
       map.invalidateSize();
       map.fitBounds(bounds.pad(0.25), { maxZoom: 6 });
     }
-    const bits = [`${MPIN.fmt(total)} participants · ${points.length} areas`];
-    if (suppressed > 0) bits.push(`${MPIN.fmt(suppressed)} hidden for privacy`);
+    const bits = [MPIN.t('poll.map_meta', { total: MPIN.fmt(total), areas: MPIN.fmt(points.length) })];
+    if (suppressed > 0) bits.push(MPIN.t('poll.map_suppressed', { n: MPIN.fmt(suppressed) }));
     $('#mapMeta').textContent = bits.join(' · ');
   }
 
@@ -135,7 +135,7 @@
       const res = await MPIN.api(mapUrl());
       renderPoints(res.data.points, res.data.total, res.data.shown, res.data.suppressed);
     } catch (e) {
-      $('#mapMeta').textContent = 'Could not load map data.';
+      $('#mapMeta').textContent = MPIN.t('poll.map_load_fail');
     }
   }
   loadMap();
@@ -164,9 +164,9 @@
         const items = await r.json();
         searchResults.innerHTML = items.length
           ? items.map((it) => `<li data-lat="${it.lat}" data-lng="${it.lon}">${MPIN.esc(it.display_name)}</li>`).join('')
-          : '<li class="muted">No results</li>';
+          : `<li class="muted">${MPIN.t('poll.search_no_results')}</li>`;
       } catch (e) {
-        searchResults.innerHTML = '<li class="muted">Search unavailable</li>';
+        searchResults.innerHTML = `<li class="muted">${MPIN.t('poll.search_unavailable')}</li>`;
       }
     }, 450);
   });
@@ -200,7 +200,7 @@
           data: {
             labels,
             datasets: [{
-              label: 'New responses', data: d.growth.map((g) => g.count),
+              label: MPIN.t('poll.new_responses'), data: d.growth.map((g) => g.count),
               borderColor: '#22d3ee', backgroundColor: 'rgba(34,211,238,.14)',
               fill: true, tension: .38, borderWidth: 2,
               pointRadius: 2, pointBackgroundColor: '#22d3ee',
@@ -225,9 +225,9 @@
       return `<li><span class="bl-label">${label}</span><span class="bl-bar"><i style="width:${Math.max(3, (r.c / max) * 100)}%"></i></span><span class="bl-val">${MPIN.fmt(r.c)}</span></li>`;
     }).join('');
     $('#topCountries').innerHTML = d.top_countries.length
-      ? barHtml(d.top_countries, 'country') : '<li class="muted small">No data yet</li>';
+      ? barHtml(d.top_countries, 'country') : `<li class="muted small">${MPIN.t('common.no_data')}</li>`;
     $('#topCities').innerHTML = d.top_cities.length
-      ? barHtml(d.top_cities, 'city') : '<li class="muted small">No data yet</li>';
+      ? barHtml(d.top_cities, 'city') : `<li class="muted small">${MPIN.t('common.no_data')}</li>`;
 
     /* answers */
     const area = $('#answersArea');
@@ -245,7 +245,7 @@
             <span class="bl-val">${MPIN.fmt(o.count)} · ${Math.round((o.count / total) * 100)}%</span>
           </li>`).join('');
         inner = `<ul class="bar-list static">${inner}</ul>
-                 <p class="muted small">${MPIN.fmt(q.answered)} answer${q.answered === 1 ? '' : 's'}</p>`;
+                 <p class="muted small">${MPIN.t('poll.answered_n', { n: MPIN.fmt(q.answered) })}</p>`;
       } else if (q.type === 'rating') {
         const rating = Array.isArray(q.rating) ? q.rating : Object.values(q.rating);
         const total = rating.reduce((a, b) => a + b, 0) || 1;
@@ -253,16 +253,16 @@
           <li><span class="bl-label">${i + 1} ★</span>
           <span class="bl-bar"><i style="width:${(c / total) * 100}%; background:linear-gradient(90deg,#fbbf24,#f59e0b)"></i></span>
           <span class="bl-val">${MPIN.fmt(c)} · ${Math.round((c / total) * 100)}%</span></li>`).join('') + `</ul>
-          <p class="muted small">Average: <strong style="color:#fbbf24">${q.answered ? (rating.reduce((s, c, i) => s + c * (i + 1), 0) / q.answered).toFixed(1) : '—'}</strong> / 5</p>`;
+          <p class="muted small">${MPIN.t('poll.avg')}: <strong style="color:#fbbf24">${q.answered ? MPIN.fmt((rating.reduce((s, c, i) => s + c * (i + 1), 0) / q.answered).toFixed(1)) : '—'}</strong> / ۵</p>`;
       } else if (q.type === 'number' && q.number.count) {
         inner = `<p class="kv-line">min <strong>${q.number.min}</strong> · average <strong>${q.number.avg}</strong> · max <strong>${q.number.max}</strong> · <strong>${q.number.count}</strong> answers</p>
                  <div class="chart-box" style="height:130px"><canvas id="histChart-${q.id}" height="130"></canvas></div>`;
       } else if (q.type === 'text') {
         inner = q.texts.length
           ? `<ul class="text-answers">${q.texts.slice(0, 8).map((t) => `<li>“${MPIN.esc(t)}”</li>`).join('')}</ul>`
-          : '<p class="muted small">No written answers yet.</p>';
+          : `<p class="muted small">${MPIN.t('common.no_data')}</p>`;
       } else {
-        inner = '<p class="muted small">No answers yet.</p>';
+        inner = `<p class="muted small">${MPIN.t('common.no_data')}</p>`;
       }
       block.innerHTML = `<h3>${MPIN.esc(q.text)} <span class="muted small">· ${q.type}</span></h3>${inner}`;
       area.appendChild(block);
@@ -295,7 +295,7 @@
   $('#favBtn')?.addEventListener('click', async () => {
     const btn = $('#favBtn');
     if (btn.dataset.needsLogin) {
-      MPIN.toast('Please log in to save polls.', 'err');
+      MPIN.toast(MPIN.t('poll.fav_login'), 'err');
       setTimeout(() => { location.href = `${MPIN.base || ''}/login?next=${encodeURIComponent(location.pathname)}`; }, 900);
       return;
     }
@@ -303,7 +303,7 @@
       const res = await MPIN.api(`${MPIN.base || ''}/api/favorites/${btn.dataset.poll}/toggle`, { method: 'POST' });
       btn.classList.toggle('active', res.favorite);
       btn.querySelector('span').textContent = res.favorite ? 'Saved' : 'Save';
-      MPIN.toast(res.favorite ? 'Added to your saved polls.' : 'Removed from saved polls.');
+      MPIN.toast(MPIN.t(res.favorite ? 'poll.fav_added' : 'poll.fav_removed'));
     } catch (e) { MPIN.toast(e.message, 'err'); }
   });
 
@@ -324,7 +324,7 @@
       });
       reportModal.hidden = true;
       f.reset();
-      MPIN.toast('Report submitted. Thank you for keeping Mpin safe.');
+      MPIN.toast(MPIN.t('toast.report_sent'));
     } catch (err) { MPIN.toast(err.message, 'err'); }
   });
 })();

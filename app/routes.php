@@ -6,6 +6,7 @@
 declare(strict_types=1);
 
 use App\Controllers\AdminController;
+use App\Controllers\MyDataController;
 use App\Controllers\ApiController;
 use App\Controllers\AuthController;
 use App\Controllers\CreateController;
@@ -23,6 +24,9 @@ return static function (Router $r): void {
 
     /* ---------------- pages ---------------- */
     $r->get('/',              [HomeController::class, 'index']);
+    $r->get('/lang/{lang:en|fa}', [PageController::class, 'switchLang']);
+    $r->get('/my-data',       [MyDataController::class, 'show']);
+    $r->post('/my-data/delete', [MyDataController::class, 'delete']);
     $r->get('/explore',       [ExploreController::class, 'index']);
     $r->get('/map',           [ExploreController::class, 'globalMap']);
 
@@ -56,7 +60,7 @@ return static function (Router $r): void {
 
     /* ---------------- admin ---------------- */
     $r->get('/admin',                        [AdminController::class, 'index']);
-    $r->get('/admin/{section:users|polls|categories|reports|settings}', [AdminController::class, 'section']);
+    $r->get('/admin/{section:users|polls|categories|reports|logs|settings}', [AdminController::class, 'section']);
     $r->post('/admin/users/{id:\d+}/{action:activate|suspend|make-admin|make-user|delete}', [AdminController::class, 'userAction']);
     $r->post('/admin/polls/{id:\d+}/{action:feature|unfeature|verify|unverify|close|open|delete}', [AdminController::class, 'pollAction']);
     $r->post('/admin/categories/add',    [AdminController::class, 'categoryAdd']);

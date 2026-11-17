@@ -2,11 +2,11 @@
 <section class="container error-page">
   <div class="error-box">
     <div class="error-ico"><?= mpin_logo(84, 'err') ?></div>
-    <h1><?= e($heading ?? 'Something went wrong') ?></h1>
-    <p class="muted"><?= e($message ?? 'An unexpected error occurred.') ?></p>
+    <h1><?= e($heading ?? __('error.generic')) ?></h1>
+    <p class="muted"><?= e($message ?? __('error.generic_message')) ?></p>
     <div class="hero-actions center">
-      <a class="btn btn-primary" href="<?= e(url('/')) ?>"><?= mpin_icon('home', 16) ?> Back home</a>
-      <a class="btn btn-ghost" href="<?= e(url('/explore')) ?>"><?= mpin_icon('compass', 16) ?> Explore polls</a>
+      <a class="btn btn-primary" href="<?= e(url('/')) ?>"><?= mpin_icon('home', 16) ?> <?= e(__('error.back_home')) ?></a>
+      <a class="btn btn-ghost" href="<?= e(url('/explore')) ?>"><?= mpin_icon('compass', 16) ?> <?= e(__('nav.explore')) ?></a>
     </div>
   </div>
 </section>

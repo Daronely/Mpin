@@ -1,4 +1,4 @@
-/* MPIN — core front-end helpers (theme, toasts, API, nav). */
+/* MPIN — core front-end helpers (theme, toasts, API, i18n, nav). */
 (() => {
   'use strict';
 
@@ -6,9 +6,29 @@
   const $$ = (s, el = document) => Array.from(el.querySelectorAll(s));
 
   const meta = $('meta[name="csrf-token"]');
+  const DICT = (typeof MPIN_I18N === 'object' && MPIN_I18N) || {};
+  const LOCALE = (typeof MPIN_LOCALE === 'string' && MPIN_LOCALE) || 'en';
+  const FA_DIGITS = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
+
+  const toFa = (s) => String(s).replace(/[0-9]/g, (d) => FA_DIGITS[+d]);
+
   const MPIN = (window.MPIN = {
     csrf: meta ? meta.content : '',
     theme: document.documentElement.dataset.theme || 'dark',
+    locale: LOCALE,
+    rtl: (typeof MPIN_DIR === 'string' ? MPIN_DIR : 'ltr') === 'rtl',
+    base: (typeof MPIN_BASE === 'string' ? MPIN_BASE : '') || '',
+
+    /** Translate a UI key (falls back to the key itself). */
+    t(key, params) {
+      let s = DICT[key] || key;
+      if (params) {
+        for (const [k, v] of Object.entries(params)) {
+          s = s.split(':' + k).join(v);
+        }
+      }
+      return s;
+    },
 
     esc(v) {
       return String(v == null ? '' : v)
@@ -18,9 +38,11 @@
 
     fmt(n) {
       n = Number(n) || 0;
-      if (n >= 1e6) return (n / 1e6).toFixed(1).replace(/\.0$/, '') + 'M';
-      if (n >= 1e3) return (n / 1e3).toFixed(1).replace(/\.0$/, '') + 'K';
-      return String(n);
+      let s;
+      if (n >= 1e6) s = (n / 1e6).toFixed(1).replace(/\.0$/, '') + 'M';
+      else if (n >= 1e3) s = (n / 1e3).toFixed(1).replace(/\.0$/, '') + 'K';
+      else s = String(n);
+      return MPIN.locale === 'fa' ? toFa(s) : s;
     },
 
     tiles() {
@@ -70,6 +92,27 @@
         const v = window.prompt(label || 'Type DELETE to confirm', '');
         resolve(v === 'DELETE');
       });
+    },
+
+    /** Coarse browser fingerprint (salted server-side) — layer 4 of the
+        multi-layer duplicate-response protection. */
+    fingerprint() {
+      try {
+        const parts = [
+          screen.width, screen.height, screen.colorDepth,
+          (Intl.DateTimeFormat().resolvedOptions().timeZone || ''),
+          (navigator.language || ''), (navigator.languages || []).join(','),
+          navigator.platform || '', navigator.hardwareConcurrency || 0,
+        ].join('|');
+        if (window.crypto && crypto.subtle) {
+          return crypto.subtle.digest('SHA-256', new TextEncoder().encode(parts)).then((buf) => {
+            return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, '0')).join('');
+          });
+        }
+        return Promise.resolve(null);
+      } catch (e) {
+        return Promise.resolve(null);
+      }
     },
   });
 
@@ -139,9 +182,9 @@
     }
     try {
       await navigator.clipboard.writeText(url);
-      MPIN.toast('Link copied to clipboard!');
+      MPIN.toast(MPIN.t('poll.share_copied'));
     } catch (err) {
-      window.prompt('Copy this link:', url);
+      window.prompt(MPIN.t('common.copy'), url);
     }
   });
 
@@ -158,7 +201,6 @@
     }
   });
 
-  /* ---------- log-out via link (no-JS fallback handled server-side) ---------- */
   MPIN.$ = $;
   MPIN.$$ = $$;
 })();

@@ -199,12 +199,13 @@ function unique_slug(string $title, ?int $ignorePollId = null): string
     }
 }
 
-/** Compact number formatting (12345 → 12.3K). */
+/** Compact number formatting (12345 → 12.3K), localized digits. */
 function num_fmt(int|float $n): string
 {
-    if ($n >= 1_000_000) return round($n / 1_000_000, 1) . 'M';
-    if ($n >= 1_000)     return round($n / 1_000, 1) . 'K';
-    return (string)(int)$n;
+    if ($n >= 1_000_000) $s = round($n / 1_000_000, 1) . 'M';
+    elseif ($n >= 1_000) $s = round($n / 1_000, 1) . 'K';
+    else $s = (string)(int)$n;
+    return local_num($s);
 }
 
 /** Percent with 1 decimal. */

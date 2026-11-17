@@ -62,14 +62,27 @@ final class PollController
             json_err('You do not own this poll.', [], 403);
         }
         $action = (string)($_POST['action'] ?? json_body()['action'] ?? '');
+        $audit = static function (string $what) use ($user, $poll): void {
+            try {
+                Database::insert('audit_logs', [
+                    'user_id' => $user['id'], 'actor' => $user['username'],
+                    'action' => $what, 'target_type' => 'poll',
+                    'target_id' => (string)$poll['id'], 'details' => $poll['slug'],
+                    'created_at' => utcnow(),
+                ]);
+            } catch (\Throwable $e) { error_log('[mpin] audit: ' . $e->getMessage()); }
+        };
         switch ($action) {
             case 'close':
                 Database::update('polls', ['status' => 'closed'], 'id = ?', [$poll['id']]);
+                $audit('poll.close');
                 json_ok(['message' => 'Poll closed.', 'status' => 'closed']);
             case 'open':
                 Database::update('polls', ['status' => 'open'], 'id = ?', [$poll['id']]);
+                $audit('poll.open');
                 json_ok(['message' => 'Poll reopened.', 'status' => 'open']);
             case 'delete':
+                $audit('poll.delete');
                 Database::run('DELETE FROM polls WHERE id = ?', [$poll['id']]);
                 json_ok(['message' => 'Poll deleted.', 'redirect' => url('/dashboard')]);
             default:
@@ -92,9 +105,9 @@ final class PollController
     {
         http_response_code(404);
         View::render('pages/error', [
-            'title' => 'Not found — Mpin', 'code' => 404,
-            'heading' => '404 — Poll not found',
-            'message' => 'This poll does not exist, was deleted, or the link is wrong.',
+            'title' => '404 — Mpin', 'code' => 404,
+            'heading' => __('error.404_heading'),
+            'message' => __('error.404_poll'),
         ]);
         exit;
     }

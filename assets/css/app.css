@@ -92,7 +92,7 @@ hr { border: 0; border-top: 1px solid var(--border); margin: 18px 0; }
 .muted { color: var(--muted); }
 .small { font-size: .83rem; }
 .grad-text { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
-.hp { position: absolute !important; left: -9999px; opacity: 0; height: 0; width: 0; }
+.hp { position: absolute !important; width: 1px; height: 1px; opacity: 0; overflow: hidden; clip-path: inset(50%); pointer-events: none; }
 
 /* animations */
 @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
@@ -775,3 +775,168 @@ label { font-weight: 600; font-size: .88rem; display: block; margin-bottom: 6px;
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
   html { scroll-behavior: auto; }
 }
+
+/* ============================================================
+   v1.1 — RTL & Persian language support + UI hardening
+   ============================================================ */
+
+/* ---------- Persian font ---------- */
+@font-face {
+  font-family: 'Vazirmatn';
+  src: url('../vendor/fonts/Vazirmatn-Variable.woff2') format('woff2-variations');
+  font-weight: 100 900;
+  font-display: swap;
+}
+:root[lang="fa"] body,
+:root[lang="fa"] input, :root[lang="fa"] select, :root[lang="fa"] textarea, :root[lang="fa"] button {
+  font-family: 'Vazirmatn', var(--font);
+}
+:root[lang="fa"] { letter-spacing: 0 !important; }
+:root[lang="fa"] h1, :root[lang="fa"] h2, :root[lang="fa"] h3 { letter-spacing: 0; }
+
+/* ---------- language switcher ---------- */
+.lang-switch {
+  display: inline-flex; align-items: center; gap: 2px;
+  background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 3px;
+}
+.lang-btn {
+  display: inline-grid; place-items: center; min-width: 30px; padding: 3px 9px;
+  font-size: .74rem; font-weight: 800; border-radius: 999px;
+  color: var(--muted); transition: all .16s var(--ease);
+}
+.lang-btn:hover { color: var(--text); }
+.lang-btn.active { background: var(--grad); color: #04222c; }
+
+/* ============================================================
+   UI hardening — no overflowing buttons anywhere
+   ============================================================ */
+.btn { white-space: normal; max-width: 100%; overflow-wrap: anywhere; line-height: 1.35; }
+.site-header .btn { white-space: nowrap; }
+.panel, .card, .wizard, .qb-item, .opt, .field, .chip { min-width: 0; }
+.field > input, .field > textarea, .field > select, input.field, textarea.field, select.select { max-width: 100%; }
+.poll-card-title, .poll-card-desc, .side-poll strong, .t-link { overflow-wrap: anywhere; }
+table { min-width: 0; }
+td .chip { max-width: 100%; }
+
+/* hero: centered, balanced */
+.hero-grid { align-items: center; }
+.hero-copy { text-align: center; margin-inline: auto; }
+.hero-sub { margin-inline: auto; }
+.hero-actions { justify-content: center; }
+.hero-actions .btn { flex: 1 1 auto; max-width: 260px; }
+.hero-stats { justify-content: center; }
+
+/* section heads wrap gracefully */
+.section-head { flex-wrap: wrap; }
+.section-head .btn { flex-shrink: 0; }
+
+/* create page: actions live inside a panel, never float outside */
+.create-actions {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 18px; box-shadow: var(--shadow);
+}
+.create-actions .btn-block { width: 100%; }
+.qb-head { flex-wrap: wrap; }
+.qb-head .field { min-width: min(240px, 100%); }
+.qb-foot { flex-wrap: wrap; gap: 8px; }
+.mini-controls { display: inline-flex; gap: 4px; }
+.cover-pick { width: 100%; padding: 22px 14px; text-align: center; }
+
+/* forms on small screens */
+@media (max-width: 640px) {
+  .create-grid, .settings-grid, .manage-grid { grid-template-columns: 1fr; }
+  .field-row { grid-template-columns: 1fr; }
+  .qb-head .qb-type { width: 100%; }
+  .toolbar { gap: 8px; }
+  .toolbar .select, .toolbar .search-field { min-width: 100%; }
+  .poll-actions { width: 100%; }
+  .poll-actions-row { justify-content: center; }
+  .wizard-nav { flex-wrap: wrap; }
+  .wizard-nav .btn { flex: 1 1 auto; }
+  .seg { width: 100%; justify-content: center; }
+  .seg-btn { flex: 1; justify-content: center; }
+  .geo-cols { grid-template-columns: 1fr; }
+  .profile-stats { justify-content: center; }
+  .head-actions { width: 100%; }
+  .head-actions .btn { flex: 1; justify-content: center; }
+}
+
+/* map search fits small screens */
+.map-search { width: min(300px, calc(100% - 20px)); }
+
+/* ============================================================
+   RTL (فارسی)
+   ============================================================ */
+[dir="rtl"] body { text-align: right; }
+[dir="rtl"] .leaflet-container,
+[dir="rtl"] .chart-box,
+[dir="rtl"] canvas { direction: ltr; }
+
+/* directional fixes → logical behaviour */
+.search-field svg { inset-inline-start: 12px; left: auto; }
+.search-field input { padding-inline-start: 38px; padding-left: 0; padding-right: 14px; }
+:root[dir="rtl"] .search-field input { padding-inline-start: 38px; padding-inline-end: 14px; }
+.user-menu .dropdown { inset-inline-end: 0; right: auto; left: auto; }
+[dir="rtl"] .crumb svg { transform: none; }
+[dir="ltr"] .crumb svg { transform: rotate(180deg); }
+.poll-card-media .chip-cat { inset-inline-start: 10px; left: auto; right: auto; }
+.poll-card-media .chip-verified { inset-inline-end: 10px; top: 10px; right: auto; left: auto; }
+.badge-dot { inset-inline-end: 2px; right: auto; left: auto; }
+.cover-preview .btn { inset-inline-end: 8px; inset-block-start: 8px; right: auto; left: auto; }
+.map-frame-badge { inset-inline-start: 14px; inset-block-end: 14px; }
+.pin-count { inset-inline-start: 50%; translate: -50% 0; }
+[dir="rtl"] .pin-count { translate: 50% 0; }
+
+/* progress bars grow from the correct side */
+[dir="rtl"] .bl-bar { display: flex; justify-content: flex-end; }
+
+/* popup + attribution stay readable */
+[dir="rtl"] .leaflet-popup-content { direction: rtl; text-align: right; }
+
+/* fa digits inside charts/stat numbers keep comfortable line-height */
+:root[lang="fa"] .stat-num, :root[lang="fa"] .hero-stat strong { line-height: 1.5; }
+
+/* wizard step dots: keep numbering order visual in RTL */
+[dir="rtl"] .wizard-steps .step { flex-direction: row; }
+
+/* tables in RTL: actions column still reachable */
+[dir="rtl"] .table th, [dir="rtl"] .table td { text-align: right; }
+
+/* ---------- fix: skip-link must not inflate RTL scrollWidth ---------- */
+.skip-link {
+  position: absolute; top: 0; inset-inline-start: 0;
+  width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+}
+.skip-link:focus {
+  width: auto; height: auto; clip-path: none;
+  background: var(--accent); color: #03212b; padding: 10px 16px; border-radius: 0 0 10px 0; z-index: 200;
+}
+
+/* ---------- fix: nav overflow on small screens ---------- */
+@media (max-width: 680px) {
+  .nav-cta { display: none; }               /* register reachable via login page & hero CTA */
+  .nav-wrap { gap: 8px; }
+  .nav-actions { gap: 6px; }
+  .lang-btn { min-width: 26px; padding: 3px 7px; }
+}
+
+/* ---------- mobile header polish (VLM audit) ---------- */
+@media (max-width: 680px) {
+  .nav-bell { display: none; }               /* notifications live in the dashboard too */
+  .avatar-btn { padding: 2px 4px; }
+  .avatar { width: 30px; height: 30px; font-size: .72rem; }
+  .nav-wrap { height: 58px; }
+  .main-nav { top: 58px; }
+}
+
+/* datetime-local inputs keep their picker format; render LTR consistently */
+input[type="datetime-local"], input[type="date"] {
+  direction: ltr;
+  text-align: start;
+  unicode-bidi: plaintext;
+}
+
+/* ---------- dashboard greeting wrap (VLM audit) ---------- */
+.dash-user { flex-wrap: wrap; }
+.dash-user > div { min-width: 0; flex: 1 1 220px; }
+.dash-user p { overflow-wrap: anywhere; }
