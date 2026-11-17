@@ -1,0 +1,17 @@
+# Runtime configuration — never commit real credentials
+app/config.php
+
+# Runtime data
+storage/*
+!storage/.htaccess
+!storage/.gitkeep
+storage/logs/*
+!storage/logs/.gitkeep
+uploads/*
+!uploads/.htaccess
+!uploads/.gitkeep
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.log

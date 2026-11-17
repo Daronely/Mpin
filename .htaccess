@@ -1,0 +1,51 @@
+# ============================================================
+#  MPIN — Apache / cPanel configuration
+# ============================================================
+
+Options -Indexes
+DirectoryIndex index.php
+
+# ---------- private areas ----------
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule ^(app|storage)(/|$) - [F,L]
+  RewriteRule ^\.git(/|$) - [F,L]
+</IfModule>
+
+<FilesMatch "\.(sql|md|log|lock|sample|example)$">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+  </IfModule>
+</FilesMatch>
+
+# ---------- pretty URLs ----------
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
+</IfModule>
+
+# ---------- security headers ----------
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "geolocation=(self)"
+</IfModule>
+
+# ---------- asset caching ----------
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/css "access plus 7 days"
+  ExpiresByType application/javascript "access plus 7 days"
+  ExpiresByType image/svg+xml "access plus 30 days"
+  ExpiresByType image/png "access plus 30 days"
+  ExpiresByType image/jpeg "access plus 30 days"
+</IfModule>
+
+AddDefaultCharset UTF-8

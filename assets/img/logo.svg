@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="460" height="120" viewBox="0 0 460 120" fill="none" role="img" aria-label="Mpin logo">
+  <defs>
+    <linearGradient id="pin" x1="20" y1="20" x2="84" y2="84" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#22d3ee"/>
+      <stop offset="1" stop-color="#3b82f6"/>
+    </linearGradient>
+    <linearGradient id="word" x1="120" y1="30" x2="450" y2="90" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#22d3ee"/>
+      <stop offset="1" stop-color="#3b82f6"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.2" r="0.9">
+      <stop offset="0" stop-color="#0f172a"/>
+      <stop offset="1" stop-color="#0a0f1c"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="460" height="120" rx="26" fill="url(#glow)"/>
+  <g opacity="0.16" stroke="#22d3ee" stroke-width="1">
+    <path d="M0 30h460M0 60h460M0 90h460"/>
+    <path d="M115 0v120M172 0v120M230 0v120M287 0v120M345 0v120M402 0v120"/>
+  </g>
+
+  <g transform="translate(24 24)">
+    <rect width="72" height="72" rx="18" fill="url(#pin)"/>
+    <path d="M36 14.25c-9.52 0-17.25 7.73-17.25 17.25C18.75 44.4 36 57.75 36 57.75S53.25 44.4 53.25 31.5c0-9.52-7.73-17.25-17.25-17.25z" fill="#ffffff"/>
+    <circle cx="36" cy="31.5" r="6.3" fill="url(#pin)"/>
+  </g>
+
+  <text x="120" y="78" font-family="-apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="58" font-weight="800" letter-spacing="-2" fill="url(#word)">Mpin</text>
+</svg>
